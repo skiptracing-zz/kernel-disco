@@ -1,0 +1,536 @@
+# 1 "arch/arm/boot/dts/stm32h743i-eval.dts"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "arch/arm/boot/dts/stm32h743i-eval.dts"
+# 43 "arch/arm/boot/dts/stm32h743i-eval.dts"
+/dts-v1/;
+# 1 "arch/arm/boot/dts/stm32h743.dtsi" 1
+# 43 "arch/arm/boot/dts/stm32h743.dtsi"
+# 1 "arch/arm/boot/dts/skeleton.dtsi" 1
+# 12 "arch/arm/boot/dts/skeleton.dtsi"
+/ {
+ #address-cells = <1>;
+ #size-cells = <1>;
+ chosen { };
+ aliases { };
+ memory { device_type = "memory"; reg = <0 0>; };
+};
+# 44 "arch/arm/boot/dts/stm32h743.dtsi" 2
+# 1 "arch/arm/boot/dts/armv7-m.dtsi" 1
+
+/ {
+ nvic: interrupt-controller@e000e100 {
+  compatible = "arm,armv7m-nvic";
+  interrupt-controller;
+  #interrupt-cells = <1>;
+  reg = <0xe000e100 0xc00>;
+ };
+
+ systick: timer@e000e010 {
+  compatible = "arm,armv7m-systick";
+  reg = <0xe000e010 0x10>;
+  status = "disabled";
+ };
+
+ soc {
+  #address-cells = <1>;
+  #size-cells = <1>;
+  compatible = "simple-bus";
+  interrupt-parent = <&nvic>;
+  ranges;
+ };
+};
+# 45 "arch/arm/boot/dts/stm32h743.dtsi" 2
+# 1 "./scripts/dtc/include-prefixes/dt-bindings/clock/stm32h7-clks.h" 1
+# 46 "arch/arm/boot/dts/stm32h743.dtsi" 2
+# 1 "./scripts/dtc/include-prefixes/dt-bindings/mfd/stm32h7-rcc.h" 1
+# 47 "arch/arm/boot/dts/stm32h743.dtsi" 2
+
+/ {
+ clocks {
+  clk_hse: clk-hse {
+   #clock-cells = <0>;
+   compatible = "fixed-clock";
+   clock-frequency = <0>;
+  };
+
+  clk_lse: clk-lse {
+   #clock-cells = <0>;
+   compatible = "fixed-clock";
+   clock-frequency = <32768>;
+  };
+
+  clk_i2s: i2s_ckin {
+   #clock-cells = <0>;
+   compatible = "fixed-clock";
+   clock-frequency = <0>;
+  };
+ };
+
+ soc {
+  timer5: timer@40000c00 {
+   compatible = "st,stm32-timer";
+   reg = <0x40000c00 0x400>;
+   interrupts = <50>;
+   clocks = <&rcc 95>;
+  };
+
+  lptimer1: timer@40002400 {
+   #address-cells = <1>;
+   #size-cells = <0>;
+   compatible = "st,stm32-lptimer";
+   reg = <0x40002400 0x400>;
+   clocks = <&rcc 144>;
+   clock-names = "mux";
+   status = "disabled";
+
+   pwm {
+    compatible = "st,stm32-pwm-lp";
+    status = "disabled";
+   };
+
+   trigger@0 {
+    compatible = "st,stm32-lptimer-trigger";
+    reg = <0>;
+    status = "disabled";
+   };
+
+   counter {
+    compatible = "st,stm32-lptimer-counter";
+    status = "disabled";
+   };
+  };
+
+  usart2: serial@40004400 {
+   compatible = "st,stm32f7-uart";
+   reg = <0x40004400 0x400>;
+   interrupts = <38>;
+   status = "disabled";
+   clocks = <&rcc 140>;
+  };
+
+  dac: dac@40007400 {
+   compatible = "st,stm32h7-dac-core";
+   reg = <0x40007400 0x400>;
+   clocks = <&rcc 88>;
+   clock-names = "pclk";
+   #address-cells = <1>;
+   #size-cells = <0>;
+   status = "disabled";
+
+   dac1: dac@1 {
+    compatible = "st,stm32-dac";
+    #io-channels-cells = <1>;
+    reg = <1>;
+    status = "disabled";
+   };
+
+   dac2: dac@2 {
+    compatible = "st,stm32-dac";
+    #io-channels-cells = <1>;
+    reg = <2>;
+    status = "disabled";
+   };
+  };
+
+  usart1: serial@40011000 {
+   compatible = "st,stm32f7-uart";
+   reg = <0x40011000 0x400>;
+   interrupts = <37>;
+   status = "disabled";
+   clocks = <&rcc 156>;
+  };
+
+  dma1: dma@40020000 {
+   compatible = "st,stm32-dma";
+   reg = <0x40020000 0x400>;
+   interrupts = <11>,
+         <12>,
+         <13>,
+         <14>,
+         <15>,
+         <16>,
+         <17>,
+         <47>;
+   clocks = <&rcc 65>;
+   #dma-cells = <4>;
+   st,mem2mem;
+   dma-requests = <8>;
+   status = "disabled";
+  };
+
+  dma2: dma@40020400 {
+   compatible = "st,stm32-dma";
+   reg = <0x40020400 0x400>;
+   interrupts = <56>,
+         <57>,
+         <58>,
+         <59>,
+         <60>,
+         <68>,
+         <69>,
+         <70>;
+   clocks = <&rcc 64>;
+   #dma-cells = <4>;
+   st,mem2mem;
+   dma-requests = <8>;
+   status = "disabled";
+  };
+
+  dmamux1: dma-router@40020800 {
+   compatible = "st,stm32h7-dmamux";
+   reg = <0x40020800 0x1c>;
+   #dma-cells = <3>;
+   dma-channels = <16>;
+   dma-requests = <128>;
+   dma-masters = <&dma1 &dma2>;
+   clocks = <&rcc 65>;
+  };
+
+  adc_12: adc@40022000 {
+   compatible = "st,stm32h7-adc-core";
+   reg = <0x40022000 0x400>;
+   interrupts = <18>;
+   clocks = <&rcc 125>;
+   clock-names = "bus";
+   interrupt-controller;
+   #interrupt-cells = <1>;
+   #address-cells = <1>;
+   #size-cells = <0>;
+   status = "disabled";
+
+   adc1: adc@0 {
+    compatible = "st,stm32h7-adc";
+    #io-channel-cells = <1>;
+    reg = <0x0>;
+    interrupt-parent = <&adc_12>;
+    interrupts = <0>;
+    status = "disabled";
+   };
+
+   adc2: adc@100 {
+    compatible = "st,stm32h7-adc";
+    #io-channel-cells = <1>;
+    reg = <0x100>;
+    interrupt-parent = <&adc_12>;
+    interrupts = <1>;
+    status = "disabled";
+   };
+  };
+
+  mdma1: dma@52000000 {
+   compatible = "st,stm32h7-mdma";
+   reg = <0x52000000 0x1000>;
+   interrupts = <122>;
+   clocks = <&rcc 57>;
+   #dma-cells = <5>;
+   dma-channels = <16>;
+   dma-requests = <32>;
+  };
+
+  lptimer2: timer@58002400 {
+   #address-cells = <1>;
+   #size-cells = <0>;
+   compatible = "st,stm32-lptimer";
+   reg = <0x58002400 0x400>;
+   clocks = <&rcc 162>;
+   clock-names = "mux";
+   status = "disabled";
+
+   pwm {
+    compatible = "st,stm32-pwm-lp";
+    status = "disabled";
+   };
+
+   trigger@1 {
+    compatible = "st,stm32-lptimer-trigger";
+    reg = <1>;
+    status = "disabled";
+   };
+
+   counter {
+    compatible = "st,stm32-lptimer-counter";
+    status = "disabled";
+   };
+  };
+
+  lptimer3: timer@58002800 {
+   #address-cells = <1>;
+   #size-cells = <0>;
+   compatible = "st,stm32-lptimer";
+   reg = <0x58002800 0x400>;
+   clocks = <&rcc 161>;
+   clock-names = "mux";
+   status = "disabled";
+
+   pwm {
+    compatible = "st,stm32-pwm-lp";
+    status = "disabled";
+   };
+
+   trigger@2 {
+    compatible = "st,stm32-lptimer-trigger";
+    reg = <2>;
+    status = "disabled";
+   };
+  };
+
+  lptimer4: timer@58002c00 {
+   #address-cells = <1>;
+   #size-cells = <0>;
+   compatible = "st,stm32-lptimer";
+   reg = <0x58002c00 0x400>;
+   clocks = <&rcc 160>;
+   clock-names = "mux";
+   status = "disabled";
+
+   pwm {
+    compatible = "st,stm32-pwm-lp";
+    status = "disabled";
+   };
+  };
+
+  lptimer5: timer@58003000 {
+   #address-cells = <1>;
+   #size-cells = <0>;
+   compatible = "st,stm32-lptimer";
+   reg = <0x58003000 0x400>;
+   clocks = <&rcc 159>;
+   clock-names = "mux";
+   status = "disabled";
+
+   pwm {
+    compatible = "st,stm32-pwm-lp";
+    status = "disabled";
+   };
+  };
+
+  vrefbuf: regulator@58003C00 {
+   compatible = "st,stm32-vrefbuf";
+   reg = <0x58003C00 0x8>;
+   clocks = <&rcc 109>;
+   regulator-min-microvolt = <1500000>;
+   regulator-max-microvolt = <2500000>;
+   status = "disabled";
+  };
+
+  rcc: reset-clock-controller@58024400 {
+   compatible = "st,stm32h743-rcc", "st,stm32-rcc";
+   reg = <0x58024400 0x400>;
+   #clock-cells = <1>;
+   #reset-cells = <1>;
+   clocks = <&clk_hse>, <&clk_lse>, <&clk_i2s>;
+   st,syscfg = <&pwrcfg>;
+  };
+
+  pwrcfg: power-config@58024800 {
+   compatible = "syscon";
+   reg = <0x58024800 0x400>;
+  };
+
+  adc_3: adc@58026000 {
+   compatible = "st,stm32h7-adc-core";
+   reg = <0x58026000 0x400>;
+   interrupts = <127>;
+   clocks = <&rcc 128>;
+   clock-names = "bus";
+   interrupt-controller;
+   #interrupt-cells = <1>;
+   #address-cells = <1>;
+   #size-cells = <0>;
+   status = "disabled";
+
+   adc3: adc@0 {
+    compatible = "st,stm32h7-adc";
+    #io-channel-cells = <1>;
+    reg = <0x0>;
+    interrupt-parent = <&adc_3>;
+    interrupts = <0>;
+    status = "disabled";
+   };
+  };
+ };
+};
+
+&systick {
+ clock-frequency = <250000000>;
+ status = "okay";
+};
+# 45 "arch/arm/boot/dts/stm32h743i-eval.dts" 2
+# 1 "arch/arm/boot/dts/stm32h743-pinctrl.dtsi" 1
+# 43 "arch/arm/boot/dts/stm32h743-pinctrl.dtsi"
+# 1 "./scripts/dtc/include-prefixes/dt-bindings/pinctrl/stm32-pinfunc.h" 1
+# 44 "arch/arm/boot/dts/stm32h743-pinctrl.dtsi" 2
+
+/ {
+ soc {
+  pin-controller {
+   #address-cells = <1>;
+   #size-cells = <1>;
+   compatible = "st,stm32h743-pinctrl";
+   ranges = <0 0x58020000 0x3000>;
+   pins-are-numbered;
+
+   gpioa: gpio@58020000 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x0 0x400>;
+    clocks = <&rcc 86>;
+    st,bank-name = "GPIOA";
+   };
+
+   gpiob: gpio@58020400 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x400 0x400>;
+    clocks = <&rcc 85>;
+    st,bank-name = "GPIOB";
+   };
+
+   gpioc: gpio@58020800 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x800 0x400>;
+    clocks = <&rcc 84>;
+    st,bank-name = "GPIOC";
+   };
+
+   gpiod: gpio@58020c00 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0xc00 0x400>;
+    clocks = <&rcc 83>;
+    st,bank-name = "GPIOD";
+   };
+
+   gpioe: gpio@58021000 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x1000 0x400>;
+    clocks = <&rcc 82>;
+    st,bank-name = "GPIOE";
+   };
+
+   gpiof: gpio@58021400 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x1400 0x400>;
+    clocks = <&rcc 81>;
+    st,bank-name = "GPIOF";
+   };
+
+   gpiog: gpio@58021800 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x1800 0x400>;
+    clocks = <&rcc 80>;
+    st,bank-name = "GPIOG";
+   };
+
+   gpioh: gpio@58021c00 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x1c00 0x400>;
+    clocks = <&rcc 79>;
+    st,bank-name = "GPIOH";
+   };
+
+   gpioi: gpio@58022000 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x2000 0x400>;
+    clocks = <&rcc 78>;
+    st,bank-name = "GPIOI";
+   };
+
+   gpioj: gpio@58022400 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x2400 0x400>;
+    clocks = <&rcc 77>;
+    st,bank-name = "GPIOJ";
+   };
+
+   gpiok: gpio@58022800 {
+    gpio-controller;
+    #gpio-cells = <2>;
+    reg = <0x2800 0x400>;
+    clocks = <&rcc 76>;
+    st,bank-name = "GPIOK";
+   };
+
+   usart1_pins: usart1@0 {
+    pins1 {
+     pinmux = <(((((('B') - 'A') * 0x10 + (14))) << 8) | (0x5))>;
+     bias-disable;
+     drive-push-pull;
+     slew-rate = <0>;
+    };
+    pins2 {
+     pinmux = <(((((('B') - 'A') * 0x10 + (15))) << 8) | (0x5))>;
+     bias-disable;
+    };
+   };
+
+   usart2_pins: usart2@0 {
+    pins1 {
+     pinmux = <(((((('D') - 'A') * 0x10 + (5))) << 8) | (0x8))>;
+     bias-disable;
+     drive-push-pull;
+     slew-rate = <0>;
+    };
+    pins2 {
+     pinmux = <(((((('D') - 'A') * 0x10 + (6))) << 8) | (0x8))>;
+     bias-disable;
+    };
+   };
+  };
+ };
+};
+# 46 "arch/arm/boot/dts/stm32h743i-eval.dts" 2
+
+/ {
+ model = "STMicroelectronics STM32H743i-EVAL board";
+ compatible = "st,stm32h743i-eval", "st,stm32h743";
+
+ chosen {
+  bootargs = "root=/dev/ram";
+  stdout-path = "serial0:115200n8";
+ };
+
+ memory {
+  reg = <0xd0000000 0x2000000>;
+ };
+
+ aliases {
+  serial0 = &usart1;
+ };
+
+ vdda: regulator-vdda {
+  compatible = "regulator-fixed";
+  regulator-name = "vdda";
+  regulator-min-microvolt = <3300000>;
+  regulator-max-microvolt = <3300000>;
+  regulator-always-on;
+ };
+};
+
+&adc_12 {
+ vref-supply = <&vdda>;
+ status = "okay";
+ adc1: adc@0 {
+
+  st,adc-channels = <0>;
+  status = "okay";
+ };
+};
+
+&clk_hse {
+ clock-frequency = <25000000>;
+};
+
+&usart1 {
+ pinctrl-0 = <&usart1_pins>;
+ pinctrl-names = "default";
+ status = "okay";
+};
